@@ -2,8 +2,10 @@ package in.iask.electonrush.commands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class Scheduler {
@@ -24,28 +26,28 @@ public class Scheduler {
 		this.defaultCommands.put(subsystem, defaultCommand);
 	}
 	
-	public void startCommand(Command command) {
+	void startCommand(Command command) {
 		startCommand(command,command.getRequiredSubsystems());
 	}
 	
-	protected void startCommand(Command command, List<Subsystem> requiredSubsystems) {
+	protected void startCommand(Command command, Set<Subsystem> requiredSubsystems) {
 		for(Subsystem subsystem:requiredSubsystems) {
 			Command competingCommand = currentCommands.get(subsystem);
 			if(competingCommand != null) {
-				interruptCommand(competingCommand);
-			}
+				cancelCommand(competingCommand);
+			} 
 			currentCommands.put(subsystem, command);
 		}
 		activeCommands.add(command);
 	}
 	
-	public void interruptCommand(Command command) {
+	void cancelCommand(Command command) {
 		command.interrupt();
 		removeCommand(command);
 	}
 	
 	protected void removeCommand(Command command) {
-		Set<Map.Entry<Subsystem,Command>> entries = currentCommands.entrySet();
+		Set<Map.Entry<Subsystem,Command>> entries = new HashSet<Entry<Subsystem, Command>>(currentCommands.entrySet());
 		for(Map.Entry<Subsystem,Command> entry : entries) {
 			if(entry.getValue() == command) {
 				currentCommands.remove(entry.getKey());
@@ -65,7 +67,7 @@ public class Scheduler {
 			if(!currentCommands.containsKey(subsystem)) {
 				Command command = defaultCommands.get(subsystem);
 				if(command != null) {
-					List<Subsystem> subsystemList = new ArrayList<Subsystem>();
+					Set<Subsystem> subsystemList = new HashSet<Subsystem>();
 					subsystemList.add(subsystem);
 					startCommand(command,subsystemList);
 				}
