@@ -5,6 +5,8 @@ import java.util.Set;
 
 /**
  * The command class defines a command that can be submitted to the scheduler for execution.
+ * Commands may require one or more subsystems.
+ * When a command is started, all commands that requires one or more subsystems that this command requires will be interrupted.
  * @author ElectricFish
  *
  */
@@ -39,14 +41,25 @@ public abstract class Command {
 	 */
 	protected abstract void interrupted();
 	
+	/**
+	 * Adds a subsystem to the list subsystems that this command requires.
+	 * This function should only be called in the constructor.
+	 * @param subsystem the subsystem to add
+	 */
 	protected void requires(Subsystem subsystem) {
 		requiredSubsystems.add(subsystem);
 	}
 	
+	/**
+	 * submits the command to the Scheduler for execution
+	 */
 	public void start() {
 		Scheduler.getInstance().startCommand(this);
 	}
-	
+	/*
+	 * this method is called by the scheduler every time Schdueler.run() is called while the command is active. 
+	 * Returns true if command is finished, otherwise returns false.
+	 */
 	boolean run() {
 		if(!initialized) {
 			initialize();

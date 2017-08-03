@@ -5,6 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * The CommandGroup Class is a easy way to execute a group of commands together.
+ * @author ElectricFish
+ *
+ */
 public abstract class CommandGroup extends Command{
 	
 	protected class CommandEntry {
@@ -13,11 +18,14 @@ public abstract class CommandGroup extends Command{
 	}
 	
 	Queue<CommandEntry> commandQueue = new LinkedList<CommandEntry>();
-	List<Command> activeCommands = new ArrayList<Command>();
+	Queue<CommandEntry> workingCommandQueue;
+	List<Command> activeCommands;
 	
 	@Override
 	protected void initialize() {
-		// TODO Auto-generated method stub
+		//resets working command queue and active command list
+		workingCommandQueue = new LinkedList<CommandEntry>(commandQueue);
+		activeCommands = new ArrayList<Command>();
 		
 	}
 
@@ -40,20 +48,24 @@ public abstract class CommandGroup extends Command{
 
 	@Override
 	protected boolean isFinished() {
-		return activeCommands.isEmpty() && commandQueue.isEmpty();
+		return activeCommands.isEmpty() && workingCommandQueue.isEmpty();
 	}
 
 	@Override
 	protected void end() {
-		
+		//nothing to do here as all commands would have ended before this is called
 	}
 
 	@Override
 	protected void interrupted() {
-		
+		//interrupts all active commands is the entire group is interrupted.
+		for(int index = 0; index < activeCommands.size(); index++ ) {
+			activeCommands.get(index).interrupt();
+		}
 	}
 	/**
-	 * This function offers a new command to the command queue. This function should only be called in the constructor.
+	 * This function offers a new command to the command queue.
+	 * This function should only be called in the constructor.
 	 * 
 	 * @param Command the command to add
 	 * @param waitForPreviousCommandsCompletion should the command should wait for previous commands to be completed?
@@ -68,6 +80,26 @@ public abstract class CommandGroup extends Command{
 		commandQueue.offer(entry);
 	}
 	
+	/**
+	 * This function offers a new command to the command queue, this command will wait for all previous commands to finish before executing.
+	 * This function should only be called in the constructor.
+	 * 
+	 * @param Command the command to add
+	 */
+	protected void addSequential(Command command) {
+		addCommand(command,true);
+	}
+	
+	/**
+	 * This function offers a new command to the command queue, this command will NOT wait for all previous commands to finish before executing.
+	 * This function should only be called in the constructor.
+	 * 
+	 * @param Command the command to add
+	 */
+	protected void addParallel(Command command) {
+		addCommand(command,false);
+	}
+	
 	
 	/*
 	 * Loads command into the active command list.
@@ -75,7 +107,7 @@ public abstract class CommandGroup extends Command{
 	 */
 	private void loadCommands() {
 		//always load one command
-		CommandEntry nextEntry = commandQueue.poll();
+		CommandEntry nextEntry = workingCommandQueue.poll();
 		if(nextEntry != null) {
 			activeCommands.add(nextEntry.command);
 			
@@ -83,12 +115,12 @@ public abstract class CommandGroup extends Command{
 		
 		//continue to load commands until one that requires previous commands to be completed before executing it.
 		while(true) {
-			nextEntry = commandQueue.peek();
+			nextEntry = workingCommandQueue.peek();
 			if(nextEntry != null) {
 				if(nextEntry.waitForPreviousCommandsCompletion) {
 					break; //if the command requires that currently running commands be completed first, do not load it.
 				}else {
-					commandQueue.poll(); //removes this command from the queue first.
+					workingCommandQueue.poll(); //removes this command from the queue first.
 					activeCommands.add(nextEntry.command); //load the command.
 				}
 			}else {

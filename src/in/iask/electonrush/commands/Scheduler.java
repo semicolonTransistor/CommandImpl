@@ -8,6 +8,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * 
+ * The Scheduler class is a singleton that coordinates the execution of commands.
+ * @author ElectricFish
+ *
+ */
 public class Scheduler {
 	
 	private static Scheduler schedulerInstance = new Scheduler();
@@ -22,6 +28,13 @@ public class Scheduler {
 		activeCommands = new ArrayList<Command>(); 
 	}
 	
+	/**
+	 * Use this method to set a default command for a subsystem.
+	 * If commands that is active requires said subsystem, the default command will be started;
+	 * The default command will require said subsystem and only said subsystem, regardless of what the command requires as set by the require() method.
+	 * @param subsystem the subsystem to set the default command for
+	 * @param defaultCommand the default command for the subsystem.
+	 */
 	public void setSubsystemDefaultCommand(Subsystem subsystem,Command defaultCommand){
 		this.defaultCommands.put(subsystem, defaultCommand);
 	}
@@ -56,6 +69,9 @@ public class Scheduler {
 		activeCommands.remove(command);
 	}
 	
+	/**
+	 * call this function periodically, each call executes all active commands once.
+	 */
 	public void run() {
 		for (int index = 0; index < activeCommands.size(); index ++) {
 			boolean finished = activeCommands.get(index).run();
@@ -74,7 +90,10 @@ public class Scheduler {
 			}
 		}
 	}
-	
+	/**
+	 * get an instance of scheduler, always returns the same instance;
+	 * @return the instance of scheduler
+	 */
 	public static Scheduler getInstance() {
 		return schedulerInstance;
 	}
