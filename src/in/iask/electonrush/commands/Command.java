@@ -4,9 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The command class defines a command that can be submitted to the scheduler for execution.
- * Commands may require one or more subsystems.
- * When a command is started, all commands that requires one or more subsystems that this command requires will be interrupted.
+ * The Command class defines a command that can be submitted to the scheduler for execution.
+ * Commands may require one or more {@link Subsystem}.
+ * When a Command is started, all Commands that requires one or more {@link Subsystem} that this command requires will be canceled.
+ * A Time out may be provided to the constructor or set by calling the setTimeout method.
+ * This timeout has NO effect on the execution of the command, it only effects the isTimedOut method.
+ * If running a command for a specific period of time is desired, use {@link TimedCommand} instead.
  * @author ElectricFish
  *
  */
@@ -14,6 +17,30 @@ public abstract class Command {
 	
 	private boolean initialized = false;
 	private Set<Subsystem> requiredSubsystems = new HashSet<Subsystem>();
+	private int timeout = Integer.MAX_VALUE; //in milliseconds;
+	private long timeInitalized; //in milliseconds since Jan 1, 1970
+	
+	public Command() {
+		/*
+		 * Default Constructor, do nothing; 
+		 */
+	}
+	
+	/**
+	 * Construct the command with a timeout.
+	 * @param timeoutInMilliseconds the value of the timeout in milliseconds.
+	 */
+	public Command(int timeoutInMilliseconds) {
+		this.timeout = timeoutInMilliseconds;
+	}
+	
+	/**
+	 * Construct the command with a timeout.
+	 * @param timeout the value of the timeout in seconds.
+	 */
+	public Command(double timeout) {
+		this.timeout = (int) (timeout*1000);
+	}
 	
 	/**
 	 * This function is called once at the start of the command.
@@ -63,6 +90,7 @@ public abstract class Command {
 	boolean run() {
 		if(!initialized) {
 			initialize();
+			timeInitalized = System.currentTimeMillis();
 			initialized = true;
 		}
 		execute();
@@ -75,11 +103,55 @@ public abstract class Command {
 		}
 	}
 	
-	void interrupt() {
+	public void cancel() {
 		interrupted();
 		initialized = false;
 	}
 	
+	/**
+	 * Returns how many milliseconds has elapsed since the command was initialized according to the system clock.
+	 * @return milliseconds since the command was initialized;
+	 */
+	public long millisecondsSinceInitalized() {
+		return System.currentTimeMillis() - timeInitalized;
+	}
+	
+	/**
+	 * Returns how many seconds has elapsed since the command was initialized according to the system clock.
+	 * @return seconds since the command was initialized
+	 */
+	public double timeSinceInitialized() {
+		return millisecondsSinceInitalized()/1000.0;
+	}
+	
+	/**
+	 * sets the command timeout, it does not affect anything other than the isTimedOut Method.
+	 * @param timeoutInMilliseconds the timeout to set, in milliseconds.
+	 */
+	public void setTimeout(int timeoutInMilliseconds) {
+		this.timeout = timeoutInMilliseconds;
+	}
+	
+	/**
+	 * sets the command timeout, it does not affect anything other than the isTimedOut Method.
+	 * @param timeout the timeout to set, in seconds.
+	 */
+	public void setTimeout(double timeout) {
+		setTimeout((int)(timeout*1000));
+	}
+	
+	/**
+	 * returns true if more time has passed since the command was initialized than the timeout.
+	 * @return if more time has passed since the command initialized than the timeout.
+	 */
+	public boolean isTimedOut() {
+		return millisecondsSinceInitalized() >= timeout;
+	}
+	
+	/**
+	 * returns a set of subsystems that this command requires.
+	 * @return a set of subsystems that this command requires.
+	 */
 	Set<Subsystem> getRequiredSubsystems() {
 		return this.requiredSubsystems;
 	}

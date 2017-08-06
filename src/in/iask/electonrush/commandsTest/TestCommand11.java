@@ -16,7 +16,7 @@ public class TestCommand11 extends Command {
 
 	@Override
 	protected void execute() {
-		System.out.println("Test Command 1-1 executed");
+		System.out.println("Test Command 1-1 executed ," + timeSinceInitialized() + "seconds has passed since initialized.");
 
 	}
 

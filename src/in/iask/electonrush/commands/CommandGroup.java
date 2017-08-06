@@ -60,7 +60,7 @@ public abstract class CommandGroup extends Command{
 	protected void interrupted() {
 		//interrupts all active commands is the entire group is interrupted.
 		for(int index = 0; index < activeCommands.size(); index++ ) {
-			activeCommands.get(index).interrupt();
+			activeCommands.get(index).cancel();
 		}
 	}
 	/**

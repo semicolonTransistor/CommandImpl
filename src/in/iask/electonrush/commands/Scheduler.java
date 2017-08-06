@@ -55,7 +55,7 @@ public class Scheduler {
 	}
 	
 	void cancelCommand(Command command) {
-		command.interrupt();
+		command.cancel();
 		removeCommand(command);
 	}
 	

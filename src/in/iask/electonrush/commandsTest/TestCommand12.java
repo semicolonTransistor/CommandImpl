@@ -1,32 +1,24 @@
 package in.iask.electonrush.commandsTest;
 
-import in.iask.electonrush.commands.Command;
+import in.iask.electonrush.commands.TimedCommand;
 
-public class TestCommand12 extends Command {
-	long delay = 4000;
-	
-	long timeStarted;
+public class TestCommand12 extends TimedCommand {
 	
 	TestCommand12(){
+		super(4.0);
 		requires(CommandsTest.testSubsystem1);
 	}
 
 	@Override
 	protected void initialize() {
-		timeStarted = System.currentTimeMillis();
 		System.out.println("Test Command 1-2 initialized");
 
 	}
 
 	@Override
 	protected void execute() {
-		System.out.println("Test Command 1-2 executed");
+		System.out.println("Test Command 1-2 executed ," + timeSinceInitialized() + "seconds has passed since initialized.");
 
-	}
-
-	@Override
-	protected boolean isFinished() {
-		return System.currentTimeMillis() - timeStarted > delay;
 	}
 
 	@Override
