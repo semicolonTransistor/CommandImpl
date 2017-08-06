@@ -43,7 +43,7 @@ public class Scheduler {
 		startCommand(command,command.getRequiredSubsystems());
 	}
 	
-	protected void startCommand(Command command, Set<Subsystem> requiredSubsystems) {
+	private void startCommand(Command command, Set<Subsystem> requiredSubsystems) {
 		for(Subsystem subsystem:requiredSubsystems) {
 			Command competingCommand = currentCommands.get(subsystem);
 			if(competingCommand != null) {
@@ -59,7 +59,7 @@ public class Scheduler {
 		removeCommand(command);
 	}
 	
-	protected void removeCommand(Command command) {
+	private void removeCommand(Command command) {
 		Set<Map.Entry<Subsystem,Command>> entries = new HashSet<Entry<Subsystem, Command>>(currentCommands.entrySet());
 		for(Map.Entry<Subsystem,Command> entry : entries) {
 			if(entry.getValue() == command) {

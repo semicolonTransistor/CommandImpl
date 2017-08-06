@@ -67,7 +67,7 @@ public abstract class CommandGroup extends Command{
 	 * This function offers a new command to the command queue.
 	 * This function should only be called in the constructor.
 	 * 
-	 * @param Command the command to add
+	 * @param command the command to add
 	 * @param waitForPreviousCommandsCompletion should the command should wait for previous commands to be completed?
 	 */
 	protected void addCommand(Command command,boolean waitForPreviousCommandsCompletion) {
@@ -84,7 +84,7 @@ public abstract class CommandGroup extends Command{
 	 * This function offers a new command to the command queue, this command will wait for all previous commands to finish before executing.
 	 * This function should only be called in the constructor.
 	 * 
-	 * @param Command the command to add
+	 * @param command the command to add
 	 */
 	protected void addSequential(Command command) {
 		addCommand(command,true);
@@ -94,7 +94,7 @@ public abstract class CommandGroup extends Command{
 	 * This function offers a new command to the command queue, this command will NOT wait for all previous commands to finish before executing.
 	 * This function should only be called in the constructor.
 	 * 
-	 * @param Command the command to add
+	 * @param command the command to add
 	 */
 	protected void addParallel(Command command) {
 		addCommand(command,false);

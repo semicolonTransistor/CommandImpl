@@ -7,8 +7,8 @@ import java.util.Set;
  * The Command class defines a command that can be submitted to the scheduler for execution.
  * Commands may require one or more {@link Subsystem}.
  * When a Command is started, all Commands that requires one or more {@link Subsystem} that this command requires will be canceled.
- * A Time out may be provided to the constructor or set by calling the setTimeout method.
- * This timeout has NO effect on the execution of the command, it only effects the isTimedOut method.
+ * A Timeout may be provided to the constructor or set by calling {@link Command#setTimeout(int)} or {@link Command#setTimeout(double)}.
+ * This timeout has NO effect on the execution of the command, it only effects {@link Command#isTimedOut()}.
  * If running a command for a specific period of time is desired, use {@link TimedCommand} instead.
  * @author ElectricFish
  *
